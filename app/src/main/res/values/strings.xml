@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">papyrus-book</string>
+    <string name="export_success">已保存到系统下载目录 / Papyrus</string>
+    <string name="export_success_legacy">已保存到应用下载目录 / Papyrus</string>
+    <string name="export_error">保存失败，请重试</string>
+    <string name="choose_books">选择电子书</string>
+</resources>

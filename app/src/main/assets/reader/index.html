@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#f5f7f6">
+  <meta name="description" content="papyrus-book — 本地、安静、支持多种格式的电子书阅读器。">
+  <title>papyrus-book</title>
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="vendor/jszip.min.js"></script>
+  <script defer src="vendor/pdf.min.js"></script>
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <svg class="svg-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></symbol>
+    <symbol id="i-library" viewBox="0 0 24 24"><path d="M4 4v16M8 4v16M12 5v15M16 4l4 15M2 20h20"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v17H6.5A2.5 2.5 0 0 0 4 21.5zM4 4.5v17M8 6h8M8 10h6"/></symbol>
+    <symbol id="i-bookmark" viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4z"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V3m-5 5 5-5 5 5M4 15v5h16v-5"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></symbol>
+    <symbol id="i-back" viewBox="0 0 24 24"><path d="M19 12H5m6-6-6 6 6 6"/></symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+    <symbol id="i-more" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="3"/><circle cx="15" cy="17" r="3"/></symbol>
+    <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/></symbol>
+    <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5 19 19M19 5l-1.5 1.5M6.5 17.5 5 19"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 15.5A9 9 0 0 1 8.5 4 9 9 0 1 0 20 15.5z"/></symbol>
+    <symbol id="i-fullscreen" viewBox="0 0 24 24"><path d="M8 3H3v5M16 3h5v5M21 16v5h-5M8 21H3v-5"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="9" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M6 2h8l4 4v16H6zM14 2v5h5M9 12h6M9 16h6"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 6h16M9 6V3h6v3M6 6l1 15h10l1-15M10 10v7M14 10v7"/></symbol>
+    <symbol id="i-flame" viewBox="0 0 24 24"><path d="M13 2s1 5-3 8c-3 2-4 5-2 8 1 2 4 4 7 2 5-3 4-10 0-13 0 3-2 4-2 4s1-5 0-9z"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></symbol>
+    <symbol id="i-note" viewBox="0 0 24 24"><path d="M4 3h16v14H9l-5 4zM8 7h8M8 11h5"/></symbol>
+    <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v13m-5-5 5 5 5-5M4 20h16"/></symbol>
+    <symbol id="i-type" viewBox="0 0 24 24"><path d="M4 6V4h16v2M12 4v16M8 20h8"/></symbol>
+    <symbol id="i-spark" viewBox="0 0 24 24"><path d="m12 3 2.4 6.6L21 12l-6.6 2.4L12 21l-2.4-6.6L3 12l6.6-2.4z"/></symbol>
+  </svg>
+
+  <div class="ambient" aria-hidden="true"><i></i><i></i></div>
+  <div class="app-shell" id="app">
+    <header class="topbar">
+      <button class="brand" data-view="home" aria-label="papyrus-book 主页">
+        <span class="brand-icon"><svg><use href="#i-book"/></svg></span>
+        <span>papyrus<span class="brand-dot">.</span><small>book</small></span>
+      </button>
+      <div class="topbar-actions">
+        <button class="icon-button" id="open-source-search" aria-label="从书源搜索"><svg><use href="#i-globe"/></svg></button>
+        <button class="icon-button" data-import aria-label="导入电子书"><svg><use href="#i-plus"/></svg></button>
+      </div>
+    </header>
+
+    <main id="main-content">
+      <section class="view active" id="view-home">
+        <div class="welcome-row">
+          <div><p id="home-greeting">下午好，读者</p><h1>留一点时间，给阅读。</h1></div>
+          <span class="date-chip" id="home-date"></span>
+        </div>
+        <section id="home-feature" class="feature-wrap" aria-label="正在阅读"></section>
+        <div class="section-heading compact"><div><h2>阅读日常</h2><p>每一页，都算数</p></div><button class="text-button" data-view="profile">查看全部<svg><use href="#i-chevron"/></svg></button></div>
+        <div class="daily-strip" id="daily-strip"></div>
+        <section class="discover-card">
+          <div class="discover-icon"><svg><use href="#i-globe"/></svg></div>
+          <div><h3>从书源发现下一本</h3><p>搜索 Project Gutenberg 公版书，直接加入书架。</p></div>
+          <button class="round-arrow" id="discover-source" aria-label="搜索在线书源"><svg><use href="#i-arrow"/></svg></button>
+        </section>
+      </section>
+
+      <section class="view" id="view-library">
+        <div class="page-title-row"><div><h1>我的书架</h1><p>把想读的书，放在触手可及的地方。</p></div><button class="primary-button small" data-import><svg><use href="#i-plus"/></svg>导入</button></div>
+        <div class="library-tabs glass" role="tablist" aria-label="书籍来源">
+          <button class="active" data-library-mode="local" role="tab" aria-selected="true">本地书库 <span id="local-count">0</span></button>
+          <button data-library-mode="online" role="tab" aria-selected="false"><svg><use href="#i-globe"/></svg>书源找书</button>
+        </div>
+        <section id="local-library-panel">
+          <div class="search-field glass"><svg><use href="#i-search"/></svg><input id="local-search" type="search" placeholder="搜索书名或作者" aria-label="搜索本地书库"><button id="clear-local-search" hidden aria-label="清空搜索"><svg><use href="#i-close"/></svg></button></div>
+          <div class="filter-row" id="library-filters" aria-label="阅读状态筛选">
+            <button class="active" data-filter="all">全部</button><button data-filter="reading">阅读中</button><button data-filter="unread">未开始</button><button data-filter="finished">已读完</button>
+          </div>
+          <div class="shelf-heading"><span id="shelf-label">全部藏书</span><span id="shelf-order">按最近添加</span></div>
+          <div class="book-grid" id="book-grid"></div>
+          <div class="empty-state glass" id="library-empty" hidden><span class="empty-icon"><svg><use href="#i-book"/></svg></span><h2>书架还空着</h2><p>导入 EPUB、PDF、TXT、Markdown、HTML 或 FB2，开始阅读。</p><button class="primary-button" data-import><svg><use href="#i-upload"/></svg>导入第一本书</button></div>
+        </section>
+        <section id="online-library-panel" hidden>
+          <article class="source-card glass"><div class="source-logo">G</div><div><div class="source-title">Project Gutenberg <span class="status-dot"></span></div><p>Gutendex · 公版电子书 · 英文原文</p></div><span class="source-badge">已连接</span></article>
+          <form class="source-search" id="source-search-form"><div class="search-field"><svg><use href="#i-search"/></svg><input id="source-query" type="search" placeholder="输入书名或作者，如 Alice" aria-label="搜索在线书籍" required><button type="submit" aria-label="搜索"><svg><use href="#i-arrow"/></svg></button></div></form>
+          <div class="source-suggestions"><span>试试</span><button data-source-query="Alice in Wonderland">爱丽丝</button><button data-source-query="Sherlock Holmes">福尔摩斯</button><button data-source-query="Jane Austen">简·奥斯汀</button></div>
+          <div class="source-results-heading"><h2 id="source-results-title">发现公版好书</h2><span id="source-result-count"></span></div>
+          <div id="source-results"><div class="source-placeholder"><span><svg><use href="#i-spark"/></svg></span><h3>下一本好书，从这里开始</h3><p>搜索后可下载 EPUB 或 TXT 全文。书籍来源合法公版项目，下载即保存到本地。</p></div></div>
+        </section>
+      </section>
+
+      <section class="view" id="view-profile">
+        <div class="page-title-row"><div><h1>我的阅读</h1><p>不比较，只记录属于你的阅读轨迹。</p></div><button class="icon-button glass" id="profile-settings" aria-label="阅读偏好"><svg><use href="#i-settings"/></svg></button></div>
+        <section class="profile-hero glass">
+          <div class="reader-avatar"><svg><use href="#i-book"/></svg></div><div class="reader-name"><h2>本地读者</h2><p>无需账号，阅读记录只保存在此设备</p></div><span class="privacy-pill"><svg><use href="#i-check"/></svg>本地存储</span>
+          <div class="profile-main-stats"><div><strong id="profile-hours">0.0</strong><span>累计小时</span></div><div><strong id="profile-today">0</strong><span>今日分钟</span></div><div><strong id="profile-books">0</strong><span>馆藏图书</span></div></div>
+        </section>
+        <section class="week-card glass"><div class="section-heading compact"><div><h2>近 7 天</h2><p id="week-total">本周共读 0 分钟</p></div><div class="streak-badge"><svg><use href="#i-flame"/></svg><strong id="profile-streak">0</strong> 天连续</div></div><div class="week-chart" id="week-chart"></div></section>
+        <div class="profile-menu glass">
+          <button id="open-bookmarks"><span class="menu-icon"><svg><use href="#i-bookmark"/></svg></span><span><strong>我的书签</strong><small>留住想再次相遇的段落</small></span><b id="bookmark-count">0</b><svg><use href="#i-chevron"/></svg></button>
+          <button id="profile-goal"><span class="menu-icon"><svg><use href="#i-target"/></svg></span><span><strong>每日阅读目标</strong><small id="profile-goal-label">30 分钟</small></span><svg><use href="#i-chevron"/></svg></button>
+          <button id="profile-export"><span class="menu-icon"><svg><use href="#i-download"/></svg></span><span><strong>导出阅读记录</strong><small>备份进度、时长与书签</small></span><svg><use href="#i-chevron"/></svg></button>
+        </div>
+        <section class="storage-card glass"><div><svg><use href="#i-file"/></svg><span><strong id="profile-storage">0 个本地文件</strong><small>支持 EPUB · PDF · TXT · MD · HTML · FB2</small></span></div><button class="text-button danger-text" id="reset-stats">重置统计</button></section>
+        <p class="version-note">papyrus-book <span>1.0.0</span><br>你的书，只属于你。</p>
+      </section>
+
+      <section class="view" id="view-bookmarks">
+        <div class="page-title-row"><div><h1>我的书签</h1><p>回到灵感发生的那一页。</p></div><button class="icon-button glass" data-view="profile" aria-label="返回我的"><svg><use href="#i-back"/></svg></button></div>
+        <div class="bookmark-list" id="bookmark-list"></div>
+      </section>
+    </main>
+
+    <nav class="bottom-nav glass" aria-label="主导航">
+      <button class="active" data-view="home" aria-current="page"><span><svg><use href="#i-home"/></svg></span>主页</button>
+      <button data-view="library"><span><svg><use href="#i-library"/></svg></span>书库</button>
+      <button data-view="profile"><span><svg><use href="#i-user"/></svg></span>我的</button>
+    </nav>
+  </div>
+
+  <section class="reader-view" id="reader-view" aria-label="阅读器" hidden>
+    <header class="reader-topbar" id="reader-topbar">
+      <button class="reader-icon" id="reader-back" aria-label="退出阅读"><svg><use href="#i-back"/></svg></button>
+      <div class="reader-heading"><strong id="reader-book-title"></strong><span id="reader-chapter-name"></span></div>
+      <div class="reader-top-actions"><button class="reader-icon" id="reader-bookmark" aria-label="添加书签"><svg><use href="#i-bookmark"/></svg></button><button class="reader-icon" id="reader-more" aria-label="阅读设置"><svg><use href="#i-more"/></svg></button></div>
+    </header>
+    <div class="reader-stage" id="reader-stage">
+      <button class="tap-zone tap-left" id="tap-left" aria-label="上一页"></button><button class="tap-zone tap-right" id="tap-right" aria-label="下一页"></button>
+      <div class="page-perspective" id="page-perspective">
+        <div class="page-clip" id="page-clip" tabindex="0" aria-label="书籍正文，可左右滑动翻页">
+          <article class="page-content book-page" id="book-content"></article>
+          <div class="pdf-page" id="pdf-stage" hidden><canvas id="pdf-canvas"></canvas></div>
+          <div class="turning-sheet" id="turning-sheet" aria-hidden="true"></div>
+          <div class="page-shade" id="page-shade" aria-hidden="true"></div>
+        </div>
+      </div>
+      <div class="reader-floating-tools"><button id="toc-open" aria-label="目录"><svg><use href="#i-list"/></svg></button><button id="reader-theme-toggle" aria-label="切换阅读主题"><svg><use href="#i-sun"/></svg></button><button id="reader-fullscreen" aria-label="全屏"><svg><use href="#i-fullscreen"/></svg></button></div>
+    </div>
+    <footer class="reader-bottom" id="reader-bottom">
+      <button class="reader-icon" id="previous-page" aria-label="上一页"><svg><use href="#i-back"/></svg></button>
+      <div class="reader-progress"><div><span id="reader-page-label">1 / 1</span><strong id="reader-progress-label">0%</strong></div><input id="reader-progress" type="range" min="0" max="100" value="0" aria-label="阅读进度"></div>
+      <button class="reader-icon primary" id="next-page" aria-label="下一页"><svg><use href="#i-arrow"/></svg></button>
+    </footer>
+    <div class="reader-scrim" id="reader-scrim" hidden></div>
+    <aside class="reader-sheet" id="toc-panel" hidden><div class="sheet-handle"></div><div class="sheet-heading"><div><h2>目录</h2><p id="toc-meta"></p></div><button class="reader-icon" data-close-reader-panel aria-label="关闭目录"><svg><use href="#i-close"/></svg></button></div><div class="toc-list" id="toc-list"></div></aside>
+    <aside class="reader-sheet" id="reader-settings-panel" hidden><div class="sheet-handle"></div><div class="sheet-heading"><div><h2>阅读设置</h2><p>让这一页更适合你</p></div><button class="reader-icon" data-close-reader-panel aria-label="关闭设置"><svg><use href="#i-close"/></svg></button></div>
+      <div class="setting-group"><label>阅读主题</label><div class="theme-options"><button data-reader-theme="light" class="active"><i class="theme-light"></i>纸白</button><button data-reader-theme="sepia"><i class="theme-sepia"></i>暖棕</button><button data-reader-theme="dark"><i class="theme-dark"></i>夜间</button></div></div>
+      <div class="setting-row"><label for="font-size-range">正文字号</label><span id="font-size-value">18 px</span></div><input class="setting-range" id="font-size-range" type="range" min="14" max="28" value="18">
+      <div class="setting-row"><label>行距</label><span id="line-height-value">1.9</span></div><div class="segmented" id="line-height-options"><button data-line-height="1.6">紧凑</button><button class="active" data-line-height="1.9">标准</button><button data-line-height="2.2">宽松</button></div>
+      <div class="setting-group"><label>翻页效果</label><div class="segmented"><button class="active" id="animation-enabled">真实翻页</button><button id="animation-disabled">直接切换</button></div></div>
+      <p class="setting-note">轻点页面左右两侧或左右滑动翻页。轻点中间显示或隐藏工具栏。</p>
+    </aside>
+  </section>
+
+  <div class="modal-backdrop" id="import-modal" hidden><section class="modal glass" role="dialog" aria-modal="true" aria-labelledby="import-title"><button class="modal-close" data-close-modal aria-label="关闭"><svg><use href="#i-close"/></svg></button><span class="modal-symbol"><svg><use href="#i-upload"/></svg></span><h2 id="import-title">把好书带进来</h2><p>支持多选，文件仅在本机解析与保存。</p><button class="drop-zone" id="drop-zone"><svg><use href="#i-plus"/></svg><strong>选择电子书</strong><span>EPUB · PDF · TXT · Markdown · HTML · FB2</span></button><input type="file" id="file-input" accept=".epub,.pdf,.txt,.md,.markdown,.html,.htm,.fb2" multiple hidden><div class="import-progress" id="import-progress" hidden><div><i id="import-progress-bar"></i></div><span id="import-progress-text"></span></div><div class="modal-foot"><svg><use href="#i-check"/></svg>自动保存阅读进度</div></section></div>
+
+  <div class="modal-backdrop" id="book-modal" hidden><section class="modal book-modal glass" role="dialog" aria-modal="true" aria-label="书籍详情"><button class="modal-close" data-close-modal aria-label="关闭"><svg><use href="#i-close"/></svg></button><div id="book-detail"></div></section></div>
+
+  <div class="modal-backdrop" id="goal-modal" hidden><section class="modal small-modal glass" role="dialog" aria-modal="true" aria-labelledby="goal-title"><button class="modal-close" data-close-modal aria-label="关闭"><svg><use href="#i-close"/></svg></button><span class="modal-symbol"><svg><use href="#i-target"/></svg></span><h2 id="goal-title">每日阅读目标</h2><p>设定一个轻松可达成的节奏。</p><div class="goal-options"><button data-goal="15">15<small>分钟</small></button><button class="active" data-goal="30">30<small>分钟</small></button><button data-goal="45">45<small>分钟</small></button><button data-goal="60">60<small>分钟</small></button></div><button class="primary-button full-width" id="save-goal">保存目标</button></section></div>
+
+  <div class="modal-backdrop" id="preferences-modal" hidden><section class="modal small-modal glass" role="dialog" aria-modal="true" aria-labelledby="preferences-title"><button class="modal-close" data-close-modal aria-label="关闭"><svg><use href="#i-close"/></svg></button><span class="modal-symbol"><svg><use href="#i-settings"/></svg></span><h2 id="preferences-title">阅读偏好</h2><p>设置会自动保存在这台设备。</p><div class="preference-row"><div><strong>默认阅读主题</strong><span>打开书籍时应用</span></div><select id="default-theme" aria-label="默认阅读主题"><option value="light">纸白</option><option value="sepia">暖棕</option><option value="dark">夜间</option></select></div><div class="preference-row"><div><strong>翻页动画</strong><span>模拟真实纸张翻动</span></div><select id="default-animation" aria-label="翻页动画"><option value="true">开启</option><option value="false">关闭</option></select></div><button class="secondary-button full-width" id="export-data"><svg><use href="#i-download"/></svg>导出阅读记录与书签</button><div class="modal-foot">papyrus-book 不会上传你的本地书籍。</div></section></div>
+
+  <div class="toast-region" id="toast-region" aria-live="polite"></div>
+</body>
+</html>
