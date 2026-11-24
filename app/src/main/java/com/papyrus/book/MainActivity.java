@@ -88,6 +88,11 @@ public class MainActivity extends Activity {
             Collections.synchronizedSet(new HashSet<>());
     private volatile boolean destroyed;
     private boolean immersiveFullscreen;
+    private boolean readerPageReady;
+    private int safeAreaLeft;
+    private int safeAreaTop;
+    private int safeAreaRight;
+    private int safeAreaBottom;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -140,6 +145,13 @@ public class MainActivity extends Activity {
         webView.setOverScrollMode(View.OVER_SCROLL_NEVER);
         webView.addJavascriptInterface(new PapyrusBridge(), BRIDGE_NAME);
         webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                readerPageReady = true;
+                pushSafeAreaToWebView();
+            }
+
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 Uri uri = request.getUrl();
@@ -234,12 +246,17 @@ public class MainActivity extends Activity {
     }
 
     private void configureEdgeToEdge() {
+        getWindow().setStatusBarColor(0x00000000);
+        getWindow().setNavigationBarColor(0x00000000);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             getWindow().setDecorFitsSystemWindows(false);
         } else {
             getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                     | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                     | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            getWindow().setNavigationBarContrastEnforced(false);
         }
     }
 
@@ -250,28 +267,46 @@ public class MainActivity extends Activity {
             int right;
             int bottom;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                Insets bars = insets.getInsets(WindowInsets.Type.systemBars()
+                Insets safe = insets.getInsets(WindowInsets.Type.systemBars()
                         | WindowInsets.Type.displayCutout());
-                left = bars.left;
-                top = bars.top;
-                right = bars.right;
-                bottom = bars.bottom;
+                left = safe.left;
+                top = safe.top;
+                right = safe.right;
+                bottom = safe.bottom;
             } else {
                 left = insets.getSystemWindowInsetLeft();
                 top = insets.getSystemWindowInsetTop();
                 right = insets.getSystemWindowInsetRight();
                 bottom = insets.getSystemWindowInsetBottom();
             }
-            view.setPadding(left, top, right, bottom);
+            safeAreaLeft = left;
+            safeAreaTop = top;
+            safeAreaRight = right;
+            safeAreaBottom = bottom;
+            pushSafeAreaToWebView();
             return insets;
         });
         webView.requestApplyInsets();
     }
 
+    private void pushSafeAreaToWebView() {
+        if (!readerPageReady || destroyed || webView == null) return;
+        String script = "(function(){var s=document.documentElement.style;"
+                + "s.setProperty('--papyrus-safe-left','" + safeAreaLeft + "px');"
+                + "s.setProperty('--papyrus-safe-top','" + safeAreaTop + "px');"
+                + "s.setProperty('--papyrus-safe-right','" + safeAreaRight + "px');"
+                + "s.setProperty('--papyrus-safe-bottom','" + safeAreaBottom + "px');"
+                + "document.documentElement.dataset.nativeSafeArea='true';})()";
+        try {
+            webView.evaluateJavascript(script, null);
+        } catch (RuntimeException ignored) {
+            // The WebView may be going away with the Activity.
+        }
+    }
+
     private void applyLightSystemBars() {
-        int color = getResources().getColor(R.color.window_background);
-        getWindow().setStatusBarColor(color);
-        getWindow().setNavigationBarColor(color);
+        getWindow().setStatusBarColor(0x00000000);
+        getWindow().setNavigationBarColor(0x00000000);
         int flags = View.SYSTEM_UI_FLAG_VISIBLE;
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
             flags |= View.SYSTEM_UI_FLAG_LAYOUT_STABLE
